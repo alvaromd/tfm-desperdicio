@@ -378,9 +378,18 @@ with t3:
         x="exc_pct:Q", y="rot_pct:Q",
         tooltip=["modelo", alt.Tooltip("exc_pct", title="Excedente (%)", format=".2f"),
                  alt.Tooltip("rot_pct", title="Rotura (%)", format=".2f")])
-    etiq = alt.Chart(referencias).mark_text(
-        align="left", dx=10, dy=-6, fontSize=11, color="#c9d1d9").encode(
-        x="exc_pct:Q", y="rot_pct:Q", text="modelo")
+    # Los tres puntos de referencia caen muy juntos, asi que la etiqueta de
+    # cada uno lleva su propio desplazamiento. Con un desplazamiento comun se
+    # solapan entre ellas y con el punto del usuario. El gris medio se lee
+    # igual sobre fondo claro que sobre fondo oscuro.
+    POS = {"Repetir la semana pasada": (10, -11, "left"),
+           "Media móvil de 4 semanas": (-11, -7, "right"),
+           "XGBoost sin asimetría": (-11, 15, "right")}
+    etiq = alt.layer(*[
+        alt.Chart(referencias[referencias.modelo == mod]).mark_text(
+            align=al, dx=dx, dy=dy, fontSize=11, color="#5a6472").encode(
+            x="exc_pct:Q", y="rot_pct:Q", text="modelo")
+        for mod, (dx, dy, al) in POS.items()])
 
     aqui = alt.Chart(actual).mark_point(
         shape="triangle", size=320, filled=True, color=VERDE).encode(
