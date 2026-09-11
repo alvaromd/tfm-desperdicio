@@ -1,0 +1,19 @@
+# Analisis y modelado
+pandas
+numpy
+pyarrow
+scikit-learn
+xgboost
+torch
+
+# Figuras
+matplotlib
+seaborn
+
+# Cuadro de mando
+streamlit
+altair
+
+# Utilidades
+jupyter
+kaggle
