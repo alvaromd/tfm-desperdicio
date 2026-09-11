@@ -12,7 +12,7 @@ se deja la elección del punto de operación en manos de quien conoce sus costes
 
 ## Cuadro de mando
 
-**[Ver la aplicación](PENDIENTE_URL)**
+**[Ver la aplicación](https://tfm-desperdicio-hsmyazhyx4nggrylhszyn6.streamlit.app/)**
 
 Convierte las predicciones de cuantil en una cantidad concreta a pedir de cada
 categoría. No pregunta por el cuantil objetivo, que es jerga, sino por tres
