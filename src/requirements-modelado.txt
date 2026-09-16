@@ -1,19 +1,21 @@
-# Analisis y modelado
-pandas
-numpy
-pyarrow
-scikit-learn
-xgboost
-torch
+# Dependencias del modelado, con las versiones exactas empleadas en el trabajo.
+# Python 3.12.4
 
-# Figuras
-matplotlib
-seaborn
+pandas==3.0.3
+numpy==2.5.1
+pyarrow==25.0.0
+scipy==1.18.0
+scikit-learn==1.9.0
+xgboost==3.3.0
+
+# torch se instalo en su version para CPU, que no se publica en PyPI. Para
+# reproducir ese mismo entorno:
+#   pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu
+torch==2.14.0
+
+# Figuras de la memoria
+matplotlib==3.11.0
 
 # Cuadro de mando
-streamlit
-altair
-
-# Utilidades
-jupyter
-kaggle
+streamlit==1.59.1
+altair==6.2.2

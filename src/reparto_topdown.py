@@ -37,7 +37,7 @@ def sec(t):
     print(f"\n{'=' * 68}\n{t}\n{'=' * 68}")
 
 
-# ---------------------------------------------------- 1. universo comun
+# --- universo comun
 sec("1. UNIVERSO DE TRABAJO")
 
 trans = pd.read_csv(RAW / "transaction_data.csv",
@@ -64,7 +64,7 @@ train_p = sp[sp.WEEK_NO < CORTE]
 vivos = train_p.PRODUCT_ID.unique()
 print(f"Productos con historia en entrenamiento: {len(vivos):,}")
 
-# --------------------------------------- 2. rejilla completa de evaluacion
+# --- rejilla completa de evaluacion
 sec("2. REJILLA DE EVALUACION")
 print("Se evalua sobre la rejilla completa producto x semana del periodo de prueba.")
 print("Las combinaciones sin venta se tratan como demanda nula, que es lo correcto:")
@@ -86,7 +86,7 @@ print(f"Filas de evaluacion       : {len(rejilla):,} "
 print(f"Proporcion de ceros       : {(rejilla.unidades == 0).mean()*100:.1f}%")
 print(f"Demanda total del periodo : {rejilla.unidades.sum():,.0f} unidades")
 
-# ------------------------------------------- 3. pesos historicos por producto
+# --- pesos historicos por producto
 sec("3. PESOS HISTORICOS (estimados solo con entrenamiento)")
 
 def calcular_pesos(desde):
@@ -118,7 +118,7 @@ print(f"Productos con peso historico positivo pero nulo en las ultimas 13 semana
 print("Esa cifra mide el envejecimiento del reparto: referencias que pesan en el")
 print("historico pero ya no venden, y a las que un reparto estatico seguiria asignando stock.")
 
-# ----------------------------------------------- 4. prediccion descendente
+# --- prediccion descendente
 sec("4. PREDICCION DESCENDENTE")
 
 pred_cat = pd.read_parquet(RES / "predicciones_test.parquet")[
@@ -133,7 +133,7 @@ ev["descendente_rec"] = ev.pred_categoria * ev.peso_reciente
 
 print(f"Filas evaluadas: {len(ev):,}")
 
-# ----------------------------------------------- 5. predicciones ascendentes
+# --- predicciones ascendentes
 sec("5. PREDICCIONES ASCENDENTES (referencia)")
 
 sp_ord = sp.sort_values(["PRODUCT_ID", "WEEK_NO"])
@@ -155,7 +155,7 @@ ev = ev.merge(rej_full[["PRODUCT_ID", "WEEK_NO", "asc_ultimo", "asc_media4", "as
 ev = ev.dropna(subset=["asc_ultimo", "asc_media4", "asc_media_hist"])
 print(f"Filas con todas las referencias disponibles: {len(ev):,}")
 
-# ---------------------------------------------------------- 6. comparativa
+# --- comparativa
 sec("6. COMPARATIVA A NIVEL DE PRODUCTO")
 
 y = ev.unidades.values
@@ -189,7 +189,7 @@ print(f"\nMejor enfoque: {mejor.Modelo}")
 print(f"Reduccion del MAE frente a la prediccion ascendente ingenua: "
       f"{100*(ref_ultimo.MAE - mejor.MAE)/ref_ultimo.MAE:.1f}%")
 
-# ------------------------------------- 7. desglose por rotacion del producto
+# --- desglose por rotacion del producto
 sec("7. DESGLOSE SEGUN LA ROTACION DEL PRODUCTO")
 print("La ventaja del reparto descendente deberia crecer al bajar la rotacion.\n")
 
@@ -217,7 +217,7 @@ rg = pd.DataFrame(res_grupo)
 print(rg.to_string(index=False, float_format=lambda x: f"{x:,.4f}"))
 rg.to_csv(RES / "topdown_por_rotacion.csv", index=False)
 
-# ------------------------------------------------------------- 8. figura
+# --- figura
 sec("8. FIGURA")
 fig, ax = plt.subplots(1, 2, figsize=(11, 4))
 

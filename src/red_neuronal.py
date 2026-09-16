@@ -30,10 +30,10 @@ torch.manual_seed(SEMILLA)
 
 
 def sec(t):
-    print(f"\n{'=' * 70}\n{t}\n{'=' * 70}")
+    print(f"\n{'=' * 68}\n{t}\n{'=' * 68}")
 
 
-# ------------------------------------------------- 1. panel y variables
+# --- panel y variables
 sec("1. PANEL Y VARIABLES")
 
 panel = (pd.read_parquet(PROC / "panel_modelado.parquet")
@@ -64,7 +64,7 @@ print(f"Variables : {len(FEATURES)}")
 print(f"Panel util: {len(datos):,} observaciones "
       f"(semanas {datos.WEEK_NO.min()} a {datos.WEEK_NO.max()})")
 
-# ------------------------------------------------- 2. particion temporal
+# --- particion temporal
 sec("2. PARTICION TEMPORAL")
 
 train = datos[datos.WEEK_NO < CORTE_VAL]
@@ -77,7 +77,7 @@ print(f"Prueba        : semanas {test.WEEK_NO.min()}-{test.WEEK_NO.max()}  {len(
 print("\nLa validacion es tambien temporal: se toman las ultimas semanas del")
 print("entrenamiento, nunca semanas sueltas al azar, para no introducir fuga.")
 
-# ------------------------------------- 3. escalado (mismo criterio que el SVR)
+# --- escalado (mismo criterio que el SVR)
 sec("3. ESCALADO")
 
 NIVEL = [f for f in FEATURES if f.startswith(("lag_", "media_", "desv_", "nivel_", "hogares_"))]
@@ -109,7 +109,7 @@ Xva, Yva = T(X_va), T(y_va / SIGMA).unsqueeze(1)
 Xte = T(X_te)
 
 
-# ------------------------------------------------- 4. modelo y entrenamiento
+# --- modelo y entrenamiento
 def crear_red():
     torch.manual_seed(SEMILLA)
     return nn.Sequential(
@@ -173,7 +173,7 @@ preds = {
     "Red neuronal cuantilica (a=0.35)": entrenar(perdida_pinball(0.35), "Red neuronal cuantilica (a=0,35)"),
 }
 
-# ------------------------------------------------- 5. metricas
+# --- metricas
 sec("5. RESULTADOS SOBRE EL CONJUNTO DE PRUEBA")
 
 MAE_INGENUO = 43.43524416135881          # linea base del script modelado.py

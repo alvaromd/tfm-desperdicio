@@ -15,12 +15,12 @@ PROC = Path("data/processed")
 PROC.mkdir(parents=True, exist_ok=True)
 
 
-def seccion(titulo):
-    print(f"\n{'=' * 70}\n{titulo}\n{'=' * 70}")
+def sec(t):
+    print(f"\n{'=' * 68}\n{t}\n{'=' * 68}")
 
 
-# ---------------------------------------------------------------- carga
-seccion("1. CARGA DE DATOS")
+# --- carga
+sec("1. CARGA DE DATOS")
 
 trans = pd.read_csv(
     RAW / "transaction_data.csv",
@@ -40,8 +40,8 @@ print(f"semanas       : {trans.WEEK_NO.min()} a {trans.WEEK_NO.max()} "
       f"({trans.WEEK_NO.nunique()} semanas ~ {trans.WEEK_NO.nunique()/52:.1f} anios)")
 print(f"dias          : {trans.DAY.min()} a {trans.DAY.max()}")
 
-# ------------------------------------------------- calidad de los datos
-seccion("2. CALIDAD DE LOS DATOS")
+# --- calidad de los datos
+sec("2. CALIDAD DE LOS DATOS")
 
 print("Nulos por columna (transacciones):")
 nulos = trans.isna().sum()
@@ -62,8 +62,8 @@ print(f"  importe <= 0      : {(trans.SALES_VALUE <= 0).sum():,} filas "
 sin_catalogo = ~trans.PRODUCT_ID.isin(prod.PRODUCT_ID)
 print(f"\nTransacciones de productos ausentes del catalogo: {sin_catalogo.sum():,}")
 
-# ----------------------------------------------- union con el catalogo
-seccion("3. ESTRUCTURA DE CATEGORIAS")
+# --- union con el catalogo
+sec("3. ESTRUCTURA DE CATEGORIAS")
 
 df = trans.merge(prod, on="PRODUCT_ID", how="left")
 df["DEPARTMENT"] = df["DEPARTMENT"].fillna("SIN DEPARTAMENTO")
@@ -80,8 +80,8 @@ top_dep["cuota_%"] = 100 * top_dep.ventas / top_dep.ventas.sum()
 print("\nTop 10 departamentos por facturacion:")
 print(top_dep.head(10).to_string(float_format=lambda x: f"{x:,.1f}"))
 
-# --------------------------------------- serie temporal agregada global
-seccion("4. EVOLUCION TEMPORAL Y ESTACIONALIDAD")
+# --- serie temporal agregada global
+sec("4. EVOLUCION TEMPORAL Y ESTACIONALIDAD")
 
 sem = (df.groupby("WEEK_NO")
          .agg(unidades=("QUANTITY", "sum"),
@@ -97,8 +97,8 @@ print(pd.concat([sem.head(3), sem.tail(3)]).to_string(index=False,
       float_format=lambda x: f"{x:,.0f}"))
 
 
-# ------------------------------- panel semana x categoria (el target)
-seccion("5. PANEL SEMANA x CATEGORIA (base del target)")
+# --- panel semana x categoria (el target)
+sec("5. PANEL SEMANA x CATEGORIA (base del target)")
 
 panel = (df.groupby(["WEEK_NO", "COMMODITY_DESC"])
            .agg(unidades=("QUANTITY", "sum"),
@@ -133,8 +133,8 @@ n80 = int(vol_cat["cuota_acum_%"].searchsorted(80)) + 1
 print(f"\nConcentracion: {n80} categorias concentran el 80% de la facturacion "
       f"({100*n80/len(vol_cat):.1f}% del total de categorias)")
 
-# ------------------------------------- volatilidad de la demanda
-seccion("6. VOLATILIDAD DE LA DEMANDA POR CATEGORIA")
+# --- volatilidad de la demanda
+sec("6. VOLATILIDAD DE LA DEMANDA POR CATEGORIA")
 
 # solo categorias con presencia completa, que son las modelables
 cats_ok = cobertura.loc[completas == 100, "COMMODITY_DESC"]
@@ -154,8 +154,8 @@ print("\nTop 10 categorias MAS estables (demanda predecible):")
 print(vol.tail(10).to_string(float_format=lambda x: f"{x:,.2f}"))
 
 
-# ---------------------------------------------- rotacion de productos
-seccion("7. ROTACION DE PRODUCTOS (senal de desperdicio)")
+# --- rotacion de productos
+sec("7. ROTACION DE PRODUCTOS (senal de desperdicio)")
 
 rot = (df.groupby("PRODUCT_ID")
          .agg(unidades=("QUANTITY", "sum"),
@@ -178,13 +178,13 @@ print(f"\nConcentracion: {n_prod_80:,} productos ({100*n_prod_80/len(rot):.1f}%)
       f"generan el 80% de la facturacion. Cola larga muy marcada.")
 
 
-# ------------------------------------------------ guardar el panel
+# --- guardar el panel
 panel.to_parquet(PROC / "panel_semana_categoria.parquet", index=False)
 sem.to_parquet(PROC / "serie_semanal_global.parquet", index=False)
 vol.to_csv(PROC / "volatilidad_categorias.csv")
 vol_cat.to_csv(PROC / "volumen_categorias.csv")
 
-seccion("RESUMEN")
+sec("RESUMEN")
 print(f"Panel guardado          : data/processed/panel_semana_categoria.parquet")
 print(f"Categorias modelables   : {len(vol)} (presencia en las 102 semanas)")
 print(f"Observaciones del panel  : {len(p_ok):,} para modelado")

@@ -37,7 +37,7 @@ def flecha(ax, p1, p2, color=GRIS, estilo="-|>", lw=1.5, rad=0.0):
                                  connectionstyle=f"arc3,rad={rad}"))
 
 
-# ============================================ fig13: flujo metodologico
+# --- fig13: flujo metodologico
 fig, ax = plt.subplots(figsize=(10, 6.4))
 ax.set_xlim(0, 10); ax.set_ylim(0, 6.6); ax.axis("off")
 
@@ -73,7 +73,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig13_flujo_metodologico.png")
 plt.close(fig)
 
-# ================================ fig14: el vendedor de periodicos
+# --- fig14: el vendedor de periodicos
 fig, ax = plt.subplots(1, 2, figsize=(10.5, 4.1))
 
 x = np.linspace(0, 200, 600)
@@ -110,7 +110,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig14_vendedor_periodicos.png")
 plt.close(fig)
 
-# ============================ fig15: cadena alimentaria e indicadores
+# --- fig15: cadena alimentaria e indicadores
 fig, ax = plt.subplots(figsize=(10.5, 3.9))
 ax.set_xlim(0, 10.5); ax.set_ylim(0, 3.9); ax.axis("off")
 

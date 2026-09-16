@@ -33,7 +33,7 @@ def sec(t):
     print(f"\n{'=' * 68}\n{t}\n{'=' * 68}")
 
 
-# ------------------------------------------------------------ 1. datos
+# --- datos
 sec("1. CONSTRUCCION DE LAS VARIABLES RFM")
 
 trans = pd.read_csv(RAW / "transaction_data.csv",
@@ -69,7 +69,7 @@ X = np.column_stack([
 ])
 Xs = StandardScaler().fit_transform(X)
 
-# --------------------------------------------- 2. eleccion del numero de grupos
+# --- eleccion del numero de grupos
 sec("2. ELECCION DEL NUMERO DE GRUPOS")
 inercias, siluetas, ks = [], [], range(2, 9)
 for k in ks:
@@ -98,7 +98,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig10_eleccion_k.png")
 plt.close(fig)
 
-# --------------------------------------------------------- 3. segmentacion
+# --- segmentacion
 sec("3. CARACTERIZACION DE LOS SEGMENTOS")
 km = KMeans(n_clusters=K_FINAL, n_init=30, random_state=42).fit(Xs)
 rfm["segmento"] = km.labels_
@@ -127,7 +127,7 @@ for seg in orden:
           f"{p['% facturacion']:5.1f}% de facturacion  "
           f"(frecuencia mediana {p.frecuencia_mediana:.0f} cestas)")
 
-# ------------------------------- 4. conexion con el objetivo del trabajo
+# --- conexion con el objetivo del trabajo
 sec("4. QUIEN SOSTIENE LA DEMANDA DE LAS CATEGORIAS DE RIESGO")
 print("Las categorias mas volatiles son las de mayor riesgo de merma. Interesa saber")
 print("si su demanda descansa en pocos hogares o esta repartida.\n")
@@ -166,7 +166,7 @@ conc = d.groupby("household_key").SALES_VALUE.sum().sort_values(ascending=False)
 top20 = 100 * conc.head(int(len(conc) * .2)).sum() / conc.sum()
 print(f"\nConcentracion: el 20% de los hogares genera el {top20:.1f}% de la facturacion.")
 
-# ------------------------------------------------------------ 5. figuras
+# --- figuras
 sec("5. FIGURAS")
 
 fig, ax = plt.subplots(1, 2, figsize=(11, 4.2))
@@ -191,7 +191,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig11_segmentos.png")
 plt.close(fig)
 
-# --------------------------------------------- 6. cruce con demografia
+# --- cruce con demografia
 sec("6. CRUCE CON LA DEMOGRAFIA DISPONIBLE")
 demo = pd.read_csv(RAW / "hh_demographic.csv")
 cruce = rfm.merge(demo, on="household_key", how="inner")

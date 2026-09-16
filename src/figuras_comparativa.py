@@ -55,7 +55,7 @@ t["familia"] = t.Modelo.map(familia)
 COLOR = {"base": GRIS, "simetrico": NARANJA, "cuantil": VERDE}
 ETIQ = {"base": "Líneas base", "simetrico": "Pérdida simétrica", "cuantil": "Pérdida cuantílica"}
 
-# ------------------------------------------- fig06: comparativa de error
+# --- fig06: comparativa de error
 o = t.sort_values("MAE")
 fig, ax = plt.subplots(figsize=(8.4, 5.4))
 ax.barh(o.corto, o.MAE, color=[COLOR[f] for f in o.familia], height=0.66)
@@ -73,7 +73,7 @@ fig.savefig(FIG / "fig06_comparativa_modelos.png")
 plt.close(fig)
 print("fig06 regenerada con los trece modelos")
 
-# --------------------------------- fig18: plano excedente-rotura
+# --- fig18: plano excedente-rotura
 fr = pd.read_csv(RES / "frontera_excedente_rotura.csv")
 t["rot_pct"] = 100 * t["Rotura (uds)"] / t["Rotura (uds)"].sum() * 0  # placeholder
 DEM = t.loc[t.Modelo == "Ingenuo", "Excedente (uds)"].iloc[0] / (

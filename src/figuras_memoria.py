@@ -31,7 +31,7 @@ vol = pd.read_csv(PROC / "volatilidad_categorias.csv", index_col=0)
 trans = pd.read_csv(RAW / "transaction_data.csv",
                     usecols=["household_key", "PRODUCT_ID", "QUANTITY", "SALES_VALUE", "WEEK_NO"])
 
-# --------------------------------------------------------------- figura 1
+# --- figura 1
 fig, ax = plt.subplots(2, 1, figsize=(9, 5.2), sharex=True)
 ax[0].plot(serie.WEEK_NO, serie.ventas / 1000, lw=1.5, color=AZUL)
 ax[0].set_ylabel("Facturación semanal\n(miles de unidades monetarias)")
@@ -46,7 +46,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig01_evolucion_semanal.png")
 plt.close(fig)
 
-# --------------------------------------------------------------- figura 2
+# --- figura 2
 h = trans.groupby("WEEK_NO").household_key.nunique()
 meseta = h[h.index >= 30].median()
 fig, ax = plt.subplots(figsize=(8, 4))
@@ -64,7 +64,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig02_rampa_hogares.png")
 plt.close(fig)
 
-# --------------------------------------------------------------- figura 3
+# --- figura 3
 rot = trans.groupby("PRODUCT_ID").WEEK_NO.nunique()
 fig, ax = plt.subplots(figsize=(8, 4))
 ax.hist(rot, bins=51, color=MORADO, edgecolor="white", linewidth=0.4)
@@ -79,7 +79,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig03_rotacion_productos.png")
 plt.close(fig)
 
-# --------------------------------------------------------------- figura 4
+# --- figura 4
 v = vol.dropna(subset=["cv"])
 fig, ax = plt.subplots(figsize=(8, 4))
 ax.hist(v.cv, bins=40, color=VERDE, edgecolor="white", linewidth=0.4)
@@ -92,7 +92,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig04_volatilidad_categorias.png")
 plt.close(fig)
 
-# --------------------------------------------------------------- figura 5
+# --- figura 5
 top6 = (panel_mod.groupby("COMMODITY_DESC").unidades.sum()
         .sort_values(ascending=False).head(6).index)
 nombres = {

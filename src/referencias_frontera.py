@@ -2,25 +2,10 @@
 """
 Puntos de referencia para la frontera del cuadro de mando.
 
-El capitulo 6 traza la frontera aplicando un colchon de seguridad del 10 %
-sobre cada prediccion. El cuadro de mando lo retiro, porque sumar un
-colchon a una prediccion de cuantil duplica el margen de seguridad: el
-cuantil ya codifica el nivel de servicio buscado.
-
-Eso hace que las cifras absolutas del cuadro de mando no coincidan con las
-de la figura 16, aunque la historia sea la misma. Para que dentro de la
-aplicacion todo sea comparable, aqui se recalculan las tres politicas de
-referencia con la misma regla que usa el cuadro de mando, es decir sin
-colchon: reponer exactamente lo que dice la politica.
-
-  - Ingenua: repetir lo vendido la semana pasada.
-  - Media movil de 4: la media de las cuatro semanas anteriores.
-  - XGBoost simetrico: el modelo entrenado con error cuadratico, que
-    predice la demanda esperada y no un cuantil de ella.
-
-Las tres deberian quedar por encima de la frontera cuantilica en el plano
-excedente-rotura, que es el argumento del trabajo: no basta con predecir
-bien la media, hay que predecir la cantidad que conviene reponer.
+Recalcula tres politicas que no eligen cuantil (repetir la semana anterior,
+media movil de cuatro semanas y XGBoost simetrico) con la misma regla que usa
+el cuadro de mando, es decir sin el colchon del 10 % del capitulo 7. Solo asi
+son comparables con la frontera que dibuja la aplicacion.
 """
 import sys
 import numpy as np

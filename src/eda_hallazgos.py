@@ -11,8 +11,8 @@ from pathlib import Path
 RAW, PROC = Path("data/raw"), Path("data/processed")
 
 
-def seccion(t):
-    print(f"\n{'=' * 70}\n{t}\n{'=' * 70}")
+def sec(t):
+    print(f"\n{'=' * 68}\n{t}\n{'=' * 68}")
 
 
 trans = pd.read_csv(RAW / "transaction_data.csv",
@@ -21,8 +21,8 @@ trans = pd.read_csv(RAW / "transaction_data.csv",
 prod = pd.read_csv(RAW / "product.csv",
                    usecols=["PRODUCT_ID", "DEPARTMENT", "COMMODITY_DESC"])
 
-# ------------------------------------------------------------------ A
-seccion("A. RAMPA DE INCORPORACION DE HOGARES")
+# --- rampa de incorporacion de hogares
+sec("A. RAMPA DE INCORPORACION DE HOGARES")
 
 h = trans.groupby("WEEK_NO").household_key.nunique()
 print("Hogares activos por semana (muestreo):")
@@ -35,8 +35,8 @@ umbral = 0.9 * meseta
 primera_ok = int(h[h >= umbral].index.min())
 print(f"Primera semana que alcanza el 90% de la meseta ({umbral:,.0f}): {primera_ok}")
 
-# ------------------------------------------------------------------ B
-seccion("B. OUTLIERS Y CATEGORIAS ARTEFACTO")
+# --- outliers y categorias artefacto
+sec("B. OUTLIERS Y CATEGORIAS ARTEFACTO")
 
 df = trans.merge(prod, on="PRODUCT_ID", how="left")
 
@@ -64,8 +64,8 @@ no_alim = ["KIOSK-GAS", "MISC SALES TRAN", "COUP/STR & MFG", "GRO BAKERY",
 presentes = [d for d in no_alim if d in df.DEPARTMENT.unique()]
 print(" ", presentes)
 
-# ------------------------------------------------------------------ C
-seccion("C. UNIVERSO VALIDO PARA EL MODELADO")
+# --- universo valido para el modelado
+sec("C. UNIVERSO VALIDO PARA EL MODELADO")
 
 # departamentos de alimentacion perecedera y de gran consumo
 alim = ["GROCERY", "PRODUCE", "MEAT", "MEAT-PCKGD", "DELI", "PASTRY",
@@ -115,7 +115,7 @@ print(f"CV mediano normalizado por hogar : {cv_norm:.3f}")
 
 panel_f.to_parquet(PROC / "panel_modelado.parquet", index=False)
 
-seccion("CONCLUSION")
+sec("CONCLUSION")
 print(f"Periodo valido      : semanas {primera_ok} a {int(panel_f.WEEK_NO.max())}")
 print(f"Categorias          : {len(cats_full)}")
 print(f"Observaciones       : {len(panel_f):,}")

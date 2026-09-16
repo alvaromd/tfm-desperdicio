@@ -34,7 +34,7 @@ def sec(t):
     print(f"\n{'=' * 68}\n{t}\n{'=' * 68}")
 
 
-# ------------------------------------------------------------ 1. datos
+# --- datos
 sec("1. PANEL DE PARTIDA")
 panel = pd.read_parquet(PROC / "panel_modelado.parquet")
 panel = panel.sort_values(["COMMODITY_DESC", "WEEK_NO"]).reset_index(drop=True)
@@ -42,7 +42,7 @@ print(f"Observaciones : {len(panel):,}")
 print(f"Categorias    : {panel.COMMODITY_DESC.nunique()}")
 print(f"Semanas       : {panel.WEEK_NO.min()} a {panel.WEEK_NO.max()}")
 
-# ------------------------------------------- 2. ingenieria de variables
+# --- ingenieria de variables
 sec("2. INGENIERIA DE VARIABLES")
 g = panel.groupby("COMMODITY_DESC", observed=True)
 
@@ -75,7 +75,7 @@ print(f"Variables construidas : {len(FEATURES)}")
 print(f"Observaciones utiles  : {len(datos):,} (se pierden las de arranque por los retardos)")
 print(f"Rango temporal util   : semanas {datos.WEEK_NO.min()} a {datos.WEEK_NO.max()}")
 
-# ------------------------------------------------ 3. particion temporal
+# --- particion temporal
 sec("3. PARTICION TEMPORAL")
 CORTE = 88
 train = datos[datos.WEEK_NO < CORTE]
@@ -99,7 +99,7 @@ def metricas(nombre, real, pred):
 
 resultados, predicciones = [], {}
 
-# --------------------------------------------------- 4. lineas base
+# --- lineas base
 sec("4. LINEAS BASE")
 p_naive = test.lag_1.values
 resultados.append(metricas("Ingenuo (semana anterior)", y_te, p_naive))
@@ -112,7 +112,7 @@ predicciones["Media movil"] = p_media
 for r in resultados:
     print(f"  {r['Modelo']:<28} MAE={r['MAE']:8.2f}  RMSE={r['RMSE']:8.2f}  MAPE={r['MAPE (%)']:6.2f}%")
 
-# ----------------------------------------------------- 5. XGBoost
+# --- XGBoost
 sec("5. XGBOOST")
 xgb = XGBRegressor(
     n_estimators=600, learning_rate=0.05, max_depth=6,
@@ -126,7 +126,7 @@ predicciones["XGBoost"] = p_xgb
 r = resultados[-1]
 print(f"  MAE={r['MAE']:.2f}  RMSE={r['RMSE']:.2f}  MAPE={r['MAPE (%)']:.2f}%")
 
-# --------------------------------------------------------- 6. SVR
+# --- SVR
 sec("6. MAQUINA DE VECTORES SOPORTE")
 # el SVR exige escalado; la demanda es muy asimetrica, se entrena sobre el logaritmo
 NIVEL = [f for f in FEATURES if f.startswith(("lag_", "media_", "desv_", "nivel_", "hogares_"))]
@@ -150,7 +150,7 @@ predicciones["SVR"] = p_svr
 r = resultados[-1]
 print(f"  MAE={r['MAE']:.2f}  RMSE={r['RMSE']:.2f}  MAPE={r['MAPE (%)']:.2f}%")
 
-# ------------------------- 6b. XGBOOST CON PERDIDA ASIMETRICA
+# --- XGBoost con perdida asimetrica
 sec("6b. XGBOOST CUANTILICO (perdida asimetrica)")
 print("El error absoluto penaliza igual pasarse que quedarse corto, pero para reducir")
 print("desperdicio pasarse es peor: la unidad sobrante se convierte en merma. Se entrena")
@@ -172,7 +172,7 @@ for alpha in [0.35, 0.45]:
     r = resultados[-1]
     print(f"  alpha={alpha}:  MAE={r['MAE']:.2f}  RMSE={r['RMSE']:.2f}  MAPE={r['MAPE (%)']:.2f}%")
 
-# ------------------------------------------------- 7. comparativa
+# --- comparativa
 sec("7. COMPARATIVA")
 tab = pd.DataFrame(resultados)
 base_mae = tab.loc[tab.Modelo == "Ingenuo (semana anterior)", "MAE"].iloc[0]
@@ -184,14 +184,14 @@ tab.to_csv(RES / "comparativa_modelos.csv", index=False)
 mejor = tab.iloc[0].Modelo
 print(f"\nMejor modelo: {mejor}")
 
-# ------------------------------------------ 8. importancia variables
+# --- importancia variables
 sec("8. IMPORTANCIA DE VARIABLES (XGBoost)")
 imp = (pd.DataFrame({"variable": FEATURES, "importancia": xgb.feature_importances_})
        .sort_values("importancia", ascending=False).reset_index(drop=True))
 print(imp.head(10).to_string(index=False, float_format=lambda x: f"{x:.4f}"))
 imp.to_csv(RES / "importancia_variables.csv", index=False)
 
-# ------------------------------------------------------ 9. figuras
+# --- figuras
 sec("9. FIGURAS")
 
 # comparativa de error
@@ -248,7 +248,7 @@ fig.tight_layout()
 fig.savefig(FIG / "fig08_ajuste_categorias.png")
 plt.close(fig)
 
-# ------------------------------------- 10. traduccion a desperdicio
+# --- traduccion a desperdicio
 sec("10. IMPACTO SOBRE EL EXCEDENTE DE REPOSICION")
 # Politica de reposicion: reponer la prediccion mas un colchon de seguridad.
 # El excedente es lo repuesto por encima de lo vendido; la rotura es lo contrario.
@@ -275,7 +275,7 @@ imp_tab.to_csv(RES / "impacto_excedente.csv", index=False)
 
 test_pred.to_parquet(RES / "predicciones_test.parquet", index=False)
 
-# ------------------- 11. frontera entre excedente y rotura de stock
+# --- frontera entre excedente y rotura de stock
 sec("11. FRONTERA ENTRE EXCEDENTE Y ROTURA")
 print("Se recorre el cuantil objetivo para trazar el compromiso entre merma y rotura.\n")
 

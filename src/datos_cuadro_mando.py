@@ -2,22 +2,14 @@
 """
 Prepara los datos que consume el cuadro de mando.
 
-El cuadro de mando no entrena nada: lee predicciones ya calculadas. Este
-script recorre un abanico de cuantiles y guarda, para cada categoria y
-semana del periodo de prueba, la prediccion correspondiente a cada uno.
+Entrena un modelo cuantilico por cada nivel del 0,05 al 0,95 y guarda su
+prediccion para cada categoria y semana del periodo de prueba. Anade el
+precio medio por unidad y el departamento de cada categoria, que son lo que
+permite a la aplicacion razonar en euros y separar perecedero de no
+perecedero.
 
-Anade ademas dos atributos por categoria que la aplicacion necesita para
-razonar en euros y no en unidades:
-  - precio medio por unidad, calculado del propio dato (ventas / unidades)
-  - departamento, del que se deduce si el producto es perecedero
-
-El abanico va del 0,05 al 0,95, mucho mas ancho que la frontera de la
-memoria (0,20 a 0,70), por dos razones. El producto no perecedero, cuyo
-sobrante se vende la semana siguiente, pide coberturas muy altas. Y con
-un abanico estrecho el nivel optimo se quedaba pegado al borde del rango
-en 34 de 56 combinaciones razonables de parametros, de modo que lo que
-fijaba la recomendacion no era la economia del negocio sino el limite
-del propio abanico.
+El abanico es mas ancho que la frontera del capitulo 7 porque el producto no
+perecedero pide coberturas muy altas.
 """
 import sys
 import numpy as np
@@ -71,7 +63,7 @@ for a in CUANTILES:
     salida[f"q{int(a * 100):02d}"] = np.clip(m.predict(X_te), 0, None)
     print(f"  cuantil {a:.2f} listo")
 
-# ------------------------------------------------ atributos por categoria
+# --- atributos por categoria
 precio = (panel.groupby("COMMODITY_DESC", observed=True)[["unidades", "ventas"]].sum()
                .assign(precio=lambda x: x.ventas / x.unidades).precio)
 depart = (pd.read_csv(CRUDO / "product.csv", usecols=["DEPARTMENT", "COMMODITY_DESC"])

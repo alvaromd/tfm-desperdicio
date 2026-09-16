@@ -5,7 +5,7 @@ Tres experimentos con redes neuronales sobre el panel semana x categoria.
   A. Red multicuantil : una sola red con cinco salidas, una por cuantil.
                         Traza la frontera completa sin reentrenar.
   B. Red recurrente   : LSTM sobre la secuencia cruda de demanda, sin las
-                        variables construidas a mano del apartado 4.4.
+                        variables construidas a mano del apartado 5.4.
   C. Embeddings       : perceptron con un vector aprendido por categoria,
                         capacidad que XGBoost no tiene de forma nativa.
 
@@ -39,10 +39,10 @@ plt.rcParams.update({"figure.dpi": 110, "savefig.dpi": 300, "savefig.bbox": "tig
 
 
 def sec(t):
-    print(f"\n{'=' * 70}\n{t}\n{'=' * 70}")
+    print(f"\n{'=' * 68}\n{t}\n{'=' * 68}")
 
 
-# ============================================================ datos comunes
+# --- datos comunes
 panel = (pd.read_parquet(PROC / "panel_modelado.parquet")
            .sort_values(["COMMODITY_DESC", "WEEK_NO"]).reset_index(drop=True))
 g = panel.groupby("COMMODITY_DESC", observed=True)
@@ -145,7 +145,7 @@ def entrenar(red, perdida, datos_tr, datos_va, etiqueta, epocas=400, paciencia=4
 
 filas = []
 
-# ==================================================== A. RED MULTICUANTIL
+# --- red multicuantil
 sec("A. RED MULTICUANTIL: LA FRONTERA CON UN SOLO MODELO")
 print(f"Una red con {len(CUANTILES)} salidas, una por cuantil {CUANTILES},")
 print("entrenada con una pinball combinada. Sustituye a nueve reentrenamientos.\n")
@@ -190,7 +190,7 @@ ax.legend(loc="upper right")
 fig.tight_layout(); fig.savefig(FIG / "fig16_frontera_multicuantil.png"); plt.close(fig)
 print("\nFigura fig16 generada: las dos fronteras superpuestas.")
 
-# ==================================================== B. RED RECURRENTE
+# --- red recurrente
 sec("B. RED RECURRENTE (LSTM) SOBRE LA SECUENCIA CRUDA")
 print(f"Entrada: las {VENTANA} semanas anteriores de demanda y de hogares activos.")
 print("Sin retardos ni medias moviles: la red debe deducir la estructura temporal.\n")
@@ -253,7 +253,7 @@ print("\nAviso de comparabilidad: el LSTM usa una ventana de 13 semanas, de modo
 print("que su conjunto de prueba tiene las mismas semanas pero se construye de")
 print("otra forma. Las cifras son comparables en orden de magnitud, no al decimal.")
 
-# ==================================================== C. EMBEDDINGS
+# --- embeddings
 sec("C. EMBEDDINGS DE CATEGORIA")
 print(f"Un vector aprendido de dimension 8 por cada una de las {len(cats)} categorias,")
 print("concatenado a las 14 variables. Es una capacidad propia de las redes.\n")
@@ -299,7 +299,7 @@ fig.tight_layout(); fig.savefig(FIG / "fig17_embeddings_categorias.png"); plt.cl
 print("\nFigura fig17 generada: proyección t-SNE de los embeddings.")
 print("El tamaño del punto es el volumen de la categoría y el color su volatilidad.")
 
-# ==================================================== resumen
+# --- resumen
 sec("RESUMEN DE LOS TRES EXPERIMENTOS")
 res = pd.DataFrame(filas)
 pd.set_option("display.width", 220, "display.float_format", lambda x: f"{x:,.2f}")

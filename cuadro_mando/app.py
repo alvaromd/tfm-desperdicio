@@ -2,31 +2,13 @@
 """
 Cuadro de mando para la decision semanal de reposicion.
 
-El destinatario es un responsable de tienda o de categoria, no un analista.
-De ahi las decisiones que gobiernan el diseno, justificadas en el apartado
-7.2 de la memoria:
+Destinatario : responsable de tienda o de categoria, no un analista.
+Entrada      : predicciones ya calculadas por src/datos_cuadro_mando.py.
+Salida       : cantidad a pedir por categoria, valorada a su precio real.
 
-  - No se pregunta por el cuantil objetivo, que es jerga. Se pregunta por
-    los tres costes del negocio y el punto de operacion se deduce de ahi.
-    El apartado 2.1 deja esa eleccion "en manos de los expertos que conocen
-    con detalle todos sus costes", asi que fijarlos en el codigo seria
-    contradecir el objetivo del trabajo.
-  - Cada categoria se valora a su precio medio real, calculado del propio
-    dato. Sumar unidades de vino y de yogur no significa nada.
-  - El producto perecedero y el que aguanta reciben puntos de operacion
-    distintos. Si sobra una lata se vende la semana siguiente; si sobra un
-    filete se tira. Tratarlos igual sobreestima el desperdicio.
-  - El nivel por categoria lo ajusta el usuario, no el algoritmo. Con
-    quince semanas de prueba por categoria, el nivel que sale mejor en la
-    primera mitad del periodo solo coincide con el de la segunda en el
-    10 % de los casos, y ajustar asi sale un 7,6 % mas caro que aplicar el
-    nivel del grupo.
-
-La navegacion es por pestanas y no por desplegables: cada una es una
-pregunta distinta y solo la primera depende de la semana elegida.
-
-No se entrena ningun modelo: se leen las predicciones ya calculadas por
-src/datos_cuadro_mando.py.
+No se pregunta por el cuantil objetivo sino por los tres costes del negocio,
+y de ahi se deduce el punto de operacion. Perecedero y no perecedero reciben
+puntos distintos. Las decisiones de diseno se justifican en el apartado 8.2.
 """
 from pathlib import Path
 
@@ -129,11 +111,9 @@ def cuantil_unico(cs_pere, cs_agua, cf):
 def frontera():
     """Frontera excedente-rotura recorriendo el cuantil objetivo.
 
-    Un unico cuantil para todas las categorias, que es como se traza en el
-    capitulo 6. Aqui va sin el colchon de seguridad del 10 % que se aplica
-    alli, porque sumar un colchon a una prediccion de cuantil duplica el
-    margen: el cuantil ya codifica el nivel de servicio. Por eso las cifras
-    absolutas no coinciden con las de la figura 16, aunque la forma si.
+    Un unico cuantil para todo el surtido, como en el capitulo 7, pero sin el
+    colchon del 10 % que se aplica alli. Las cifras absolutas no coinciden
+    con las de la figura 17, aunque la forma de la curva si.
     """
     real = base.unidades.values
     dem = real.sum()
@@ -146,7 +126,7 @@ def frontera():
     return pd.DataFrame(filas)
 
 
-# ================================================= barra lateral: los costes
+# --- barra lateral: los costes
 st.sidebar.title("Tus costes")
 st.sidebar.caption("La herramienta no decide por ti. Tú pones lo que te cuesta "
                    "cada error y de ahí sale cuánto conviene pedir.")
@@ -177,7 +157,7 @@ st.sidebar.caption("Al fresco conviene pedirle justo, porque lo que sobra se tir
                    "A lo que aguanta conviene pedirle de más, porque lo que sobra "
                    "se vende la semana siguiente y quedarse corto sí cuesta margen.")
 
-# ==================================================== decisión y resultados
+# --- decision y resultados
 if "ajustes" not in st.session_state:
     st.session_state.ajustes = {}
 
@@ -207,7 +187,7 @@ for nom in ["pedido", "sin_ajustes", "ingenua"]:
 coste_pedido, coste_ingenua = d.coste_pedido.sum(), d.coste_ingenua.sum()
 ahorro = coste_ingenua - coste_pedido
 
-# ================================================================= cabecera
+# --- cabecera
 st.title("Cuánto reponer esta semana")
 st.caption("Cuánto conviene pedir de cada categoría, en unidades y en euros. "
            "La cantidad no es la venta más probable: es la que sale más barata "
@@ -217,7 +197,7 @@ t1, t2, t3, t4, t5 = st.tabs(["  El pedido  ", "  Por qué estas cantidades  ",
                               "  La frontera  ", "  Ajustar por categoría  ",
                               "  Ver una categoría  "])
 
-# ------------------------------------------------------------ 1. el pedido
+# --- el pedido
 with t1:
     semana = st.select_slider("Semana a preparar", options=SEMANAS, value=SEMANAS[0],
                               help="Solo esta pestaña depende de la semana. Las "
@@ -268,7 +248,7 @@ with t1:
     st.caption(f"Hay semanas sueltas en las que esta forma de pedir sale peor. "
                f"En el conjunto de las {len(por_semana)} gana en {gana}.")
 
-# --------------------------------------------------------------- 2. por qué
+# --- por que
 with t2:
     st.subheader("El fresco y el resto no se piden igual")
     st.markdown(
@@ -296,9 +276,7 @@ with t2:
 
     st.divider()
     st.subheader("Frente a repetir el pedido de la semana pasada")
-    # El agregado de unidades engana: la recomendacion mueve sobrante entre
-    # los dos tipos de producto, asi que en total puede sobrar mas y tirarse
-    # mucho menos. Por eso la tabla va desglosada y no agregada.
+    # Desglosada por tipo: el agregado esconde que el sobrante se mueve de uno a otro.
     pe, ag = d[d.perecedero], d[~d.perecedero]
     comparativa = pd.DataFrame({
         "": ["Sobra en fresco (se tira)", "Falta en fresco",
@@ -345,7 +323,7 @@ with t2:
         "pero dispara la rotura, que es moverse por la frontera y no mejorar.",
         icon="ℹ️")
 
-# --------------------------------------------------------- 3. la frontera
+# --- la frontera
 with t3:
     st.subheader("No hay una cantidad buena en abstracto")
     st.markdown(
@@ -378,10 +356,8 @@ with t3:
         x="exc_pct:Q", y="rot_pct:Q",
         tooltip=["modelo", alt.Tooltip("exc_pct", title="Excedente (%)", format=".2f"),
                  alt.Tooltip("rot_pct", title="Rotura (%)", format=".2f")])
-    # Los tres puntos de referencia caen muy juntos, asi que la etiqueta de
-    # cada uno lleva su propio desplazamiento. Con un desplazamiento comun se
-    # solapan entre ellas y con el punto del usuario. El gris medio se lee
-    # igual sobre fondo claro que sobre fondo oscuro.
+    # Los tres puntos caen muy juntos, de modo que cada etiqueta lleva su
+    # propio desplazamiento. El gris medio se lee sobre fondo claro y oscuro.
     POS = {"Repetir la semana pasada": (10, -11, "left"),
            "Media móvil de 4 semanas": (-11, -7, "right"),
            "XGBoost sin asimetría": (-11, 15, "right")}
@@ -469,7 +445,7 @@ with t3:
         "de servicio que se busca. La forma de la curva y las conclusiones son "
         "las mismas.", icon="ℹ️")
 
-# ----------------------------------------------------- 4. por categoría
+# --- por categoria
 with t4:
     st.subheader("¿Prefieres que sobre o que falte?")
     st.markdown(
@@ -543,7 +519,7 @@ with t4:
             "puntos. Con quince semanas por categoría lo que se aprende es ruido. "
             "Por eso el ajuste está aquí, en tus manos, y no automatizado.")
 
-# ------------------------------------------------------- 5. una categoría
+# --- una categoria
 with t5:
     cate = st.selectbox("Categoría", CATEGORIAS, format_func=bonito,
                         index=CATEGORIAS.index("BEEF") if "BEEF" in CATEGORIAS else 0)
