@@ -14,6 +14,10 @@ se deja la elección del punto de operación en manos de quien conoce sus costes
 
 **[Ver la aplicación](https://tfm-desperdicio-hsmyazhyx4nggrylhszyn6.streamlit.app/)**
 
+La aplicación está desplegada en Streamlit Community Cloud, que la suspende tras
+unos días sin visitas. Si aparece un aviso de que está dormida, basta con pulsar
+el botón para reactivarla; tarda alrededor de un minuto en arrancar.
+
 Convierte las predicciones de cuantil en una cantidad concreta a pedir de cada
 categoría. No pregunta por el cuantil objetivo, que es jerga, sino por tres
 porcentajes del negocio, y de ahí deduce el nivel de cobertura. Cada categoría se
