@@ -286,18 +286,28 @@ volumen = panel.groupby("COMMODITY_DESC", observed=True).unidades.sum().reindex(
 pd.DataFrame({"categoria": cats, "x": proy[:, 0], "y": proy[:, 1],
               "cv": vol, "volumen": volumen}).to_csv(RES / "embeddings_categorias.csv", index=False)
 
+# color por departamento: es la lectura que se discute en la memoria (los
+# vectores no se agrupan por departamento) y el tamano del punto es el volumen
+depart = (pd.read_csv(Path("data/raw") / "product.csv", usecols=["DEPARTMENT", "COMMODITY_DESC"])
+            .drop_duplicates("COMMODITY_DESC").set_index("COMMODITY_DESC").DEPARTMENT)
+dep = pd.Series(list(cats)).map(depart).fillna("SIN DEPARTAMENTO").values
+paleta = plt.get_cmap("tab10")
+TONOS = [0, 1, 2, 4, 5, 7, 8, 9]   # tonos de tab10 bien distinguibles entre si
 fig, ax = plt.subplots(figsize=(8.2, 6))
-s = ax.scatter(proy[:, 0], proy[:, 1], c=vol, s=18 + 55 * volumen / volumen.max(),
-               cmap="viridis_r", alpha=.85, edgecolors="white", linewidths=.4)
-for i in np.argsort(-volumen)[:8]:
-    ax.annotate(cats[i].title()[:22], (proy[i, 0], proy[i, 1]),
+for j, d in enumerate(pd.Series(dep).value_counts().index):
+    m = dep == d
+    ax.scatter(proy[m, 0], proy[m, 1], s=18 + 55 * volumen[m] / volumen.max(),
+               color=paleta(TONOS[j % len(TONOS)]), alpha=.85, edgecolors="white", linewidths=.4,
+               label=d.title())
+for i in np.argsort(-volumen)[:6]:
+    ax.annotate(cats[i].title()[:20], (proy[i, 0], proy[i, 1]),
                 textcoords="offset points", xytext=(6, 4), fontsize=7.5, color="#1a1a1a")
-fig.colorbar(s, ax=ax, label="Coeficiente de variación de la categoría")
+ax.legend(fontsize=8, loc="upper right", framealpha=0.95)
 ax.set_xlabel("Dimensión 1 de la proyección"); ax.set_ylabel("Dimensión 2 de la proyección")
 ax.set_xticks([]); ax.set_yticks([])
 fig.tight_layout(); fig.savefig(FIG / "fig17_embeddings_categorias.png"); plt.close(fig)
 print("\nFigura fig17 generada: proyección t-SNE de los embeddings.")
-print("El tamaño del punto es el volumen de la categoría y el color su volatilidad.")
+print("El tamaño del punto es el volumen de la categoría y el color su departamento.")
 
 # --- resumen
 sec("RESUMEN DE LOS TRES EXPERIMENTOS")

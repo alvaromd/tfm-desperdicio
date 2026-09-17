@@ -206,7 +206,7 @@ ax.set_xlabel("Error absoluto medio (unidades)")
 ax.invert_yaxis()
 ax.set_xlim(0, orden.MAE.max() * 1.15)
 fig.tight_layout()
-fig.savefig(FIG / "fig06_comparativa_modelos.png")
+fig.savefig(FIG / "fig06_comparativa_base.png")
 plt.close(fig)
 
 # importancia
@@ -325,5 +325,5 @@ print("\nFigura fig09 generada: frontera entre excedente y rotura.")
 
 sec("RESUMEN")
 print(f"Mejor modelo por error   : {mejor}")
-print(f"Figuras nuevas           : fig06, fig07, fig08")
+print(f"Figuras nuevas           : fig06_comparativa_base, fig07, fig08")
 print(f"Resultados guardados en  : results/")

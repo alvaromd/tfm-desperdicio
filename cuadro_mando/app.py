@@ -438,7 +438,7 @@ with t3:
                "cada categoría salga del propio conjunto de datos.")
 
     st.info(
-        "Las cifras de esta pestaña no coinciden con las de la Figura 16 de la "
+        "Las cifras de esta pestaña no coinciden con las de la Figura 17 de la "
         "memoria. Allí la frontera se traza aplicando un colchón del 10 % sobre "
         "cada predicción; aquí no se aplica ninguno, porque sumar un colchón a un "
         "cuantil duplica el margen de seguridad: el cuantil ya codifica el nivel "

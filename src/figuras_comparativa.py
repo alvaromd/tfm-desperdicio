@@ -25,7 +25,28 @@ plt.rcParams.update({"figure.dpi": 110, "savefig.dpi": 300, "savefig.bbox": "tig
                      "font.family": "DejaVu Sans", "font.size": 9.5,
                      "axes.grid": True, "grid.alpha": 0.25})
 
-t = pd.read_csv(RES / "comparativa_completa.csv")
+# La tabla de los trece modelos se monta a partir de las salidas de modelado.py,
+# red_neuronal.py y redes_avanzadas.py, y se guarda para consulta.
+NOMBRE = {
+    "XGBoost cuantilico (a=0.45)": "XGBoost cuantílico (α=0,45)",
+    "XGBoost cuantilico (a=0.35)": "XGBoost cuantílico (α=0,35)",
+    "Media movil de 4 semanas": "Media móvil de 4 semanas",
+    "SVR (nucleo RBF)": "SVR (núcleo RBF)",
+    "Ingenuo (semana anterior)": "Ingenuo",
+    "Red neuronal (perdida simetrica)": "MLP (pérdida simétrica)",
+    "Red neuronal cuantilica (a=0.45)": "MLP cuantílico (α=0,45)",
+    "Red neuronal cuantilica (a=0.35)": "MLP cuantílico (α=0,35)",
+    "Red multicuantil (salida a=0,35)": "Red multicuantil (α=0,35)",
+}
+COLS = ["Modelo", "MAE", "Excedente (uds)", "Rotura (uds)",
+        "Excedente sobre demanda (%)", "Reduccion del excedente (%)"]
+xgb = pd.read_csv(RES / "comparativa_modelos.csv").merge(
+    pd.read_csv(RES / "impacto_excedente.csv"), on="Modelo")
+t = pd.concat([xgb, pd.read_csv(RES / "red_neuronal.csv"),
+               pd.read_csv(RES / "redes_avanzadas.csv")], ignore_index=True)
+t["Modelo"] = t.Modelo.map(lambda m: NOMBRE.get(m, m))
+t = t[COLS].sort_values("Excedente (uds)").reset_index(drop=True)
+t.to_csv(RES / "comparativa_completa.csv", index=False)
 
 CORTO = {
     "XGBoost cuantílico (α=0,45)": "XGBoost cuant. α=0,45",

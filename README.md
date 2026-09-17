@@ -56,7 +56,14 @@ Los ficheros de `cuadro_mando/datos/` no son datos originales: son predicciones
 agregadas por categoría y semana, calculadas a partir de ellos.
 
 Para reproducir el trabajo completo hay que colocar los CSV originales en
-`data/raw/` y ejecutar los guiones de `src/` en orden.
+`data/raw/` y ejecutar los guiones de `src/` en este orden:
+
+1. `eda.py` y `eda_hallazgos.py`: depuran los datos y construyen el panel de modelado
+2. `modelado.py`: líneas base, XGBoost, SVR y la frontera excedente-rotura
+3. `red_neuronal.py` y `redes_avanzadas.py`: perceptrón, red multicuantil, LSTM y embeddings
+4. `segmentacion.py`, `reparto_topdown.py` y `comprobacion_muertos.py`: análisis complementarios
+5. `datos_cuadro_mando.py` y `referencias_frontera.py`: ficheros que consume la aplicación
+6. `figuras_memoria.py`, `figuras_comparativa.py`, `figuras_conceptuales.py` y `figuras_redes.py`: figuras de la memoria
 
 ## Reproducibilidad
 
